@@ -6,6 +6,7 @@ Vagrant.configure("2") do |config|
     config.vm.hostname = "restarternator"
     config.vm.synced_folder "./../..", "/vagrant", type: "nfs"
     config.vm.network "forwarded_port", guest: 5100, host: 5100
+    config.vm.network "forwarded_port", guest: 5101, host: 5101
     config.vm.provision :shell, path: "./../provision.sh"  
     config.vm.provider :libvirt do |v|
         v.default_prefix = "restarternator"

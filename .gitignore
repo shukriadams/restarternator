@@ -1,3 +1,4 @@
 src/node_modules
 src/package-lock.json
 vagrant/virtio/.vagrant
+src/config.yml
