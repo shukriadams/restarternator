@@ -1,0 +1,36 @@
+{
+    "name": "restarternator",
+    "version": "0.0.1",
+    "description": "Start/stop devices with IoT power plug.",
+    "private": false,
+    "author": "shukri.adams@gmail.com",
+    "license": "MIT",
+    "bin": "index.js",
+    "engines": {
+        "node": ">=0.20.x"
+    },
+    "scripts": {
+        "start": "node index",
+        "debug": "node --inspect=0.0.0.0:5101 index",
+        "break": "node --inspect-brk=0.0.0.0:5101 index"
+    },
+    "dependencies": {
+        "handlebars-layouts": "3.1.4",
+        "handlebars": "4.7.7",
+        "express": "4.17.1",
+        "minimist": "1.2.5",
+        "fs-extra": "8.1.0",
+        "winston": "2.4.0",
+        "urljoin": "0.1.5",
+        "winston-daily-rotate-file": "1.7.2",
+        "timebelt": "https://github.com/shukriadams/timebelt.git#0.1.17",
+        "winston-wrapper": "https://github.com/shukriadams/winston-wrapper.git#0.1.0",
+        "madscience-fsUtils": "https://github.com/shukriadams/node-fsUtils.git#0.0.12",
+        "madscience-httputils": "https://github.com/shukriadams/node-httpUtils.git#0.0.8",
+        "madscience-handlebarsloader": "https://github.com/shukriadams/madscience-handlebarsloader.git#0.0.9",
+        "madscience-node-exec": "https://github.com/shukriadams/node-exec.git#0.0.7"
+    },
+    "devDependencies": {
+        
+    }
+}
