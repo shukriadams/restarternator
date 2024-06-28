@@ -15,12 +15,12 @@ module.exports = express => {
 
     express.post('/login', async (req, res)=>{
         try {
-            const handlebarsLoader = require('madscience-handlebarsloader'),
-                { ActiveDirectory } = require('node-ad-tools'),
+            let handlebarsLoader = require('madscience-handlebarsloader'),
                 settings = await (require('./../lib/settings')).get(),
+                ActiveDirectory = require('activedirectory'),
+                ad = new ActiveDirectory(settings.ad),
                 authHelper = require('./../lib/authHelper'),
                 view = await handlebarsLoader.getPage('login'),
-                ad = new ActiveDirectory(settings.ad)
                 user = (req.body['user'] || '').trim(),
                 password = (req.body['password'] || '').trim()
 
@@ -29,42 +29,29 @@ module.exports = express => {
                     error : 'user and password required'
                 }))
             
-                var ActiveDirectory2 = require('activedirectory');
-                var ad2 = new ActiveDirectory2(settings.ad);
-                // Authenticate
-                ad2.authenticate(user, password, function(err, auth) {
-                    if (err) {
-                        console.log('ERROR: '+JSON.stringify(err));
-                        return;
-                    }
-                    if (auth) {
-                        console.log('Authenticated!');
-                    }
-                    else {
-                        console.log('Authentication failed!');
-                    }
-                });
+            if (!user.includes('@') && settings.ad.forceDomain)
+                user = `${user}@${settings.ad.forceDomain}`
 
-            ad.loginUser(user, password)
-                .then(res => {
-
-                    if(!res.success) {
-                        console.log(res)
-                        return res.send(view({
-                            error : res
-                        }))
-                    }
-
-                    const sessionId =  authHelper.createSession(user)
-                    res.cookie('restarternator-auth', sessionId, { maxAge: 900000, httpOnly: true })
-                
-                    return res.direct('/')
-                })
-                .catch(err => {
+            ad.authenticate(user, password, async(err, auth) => {
+                if (err) {
+                    console.log('ERROR: '+JSON.stringify(err));
+                    console.log(res)
                     return res.send(view({
-                        error : err
+                        error : res
                     }))
-                })
+                }
+
+                if (auth) {
+                    const sessionId = await authHelper.createSession(user)
+                    res.cookie('restarternator-auth', sessionId, { maxAge: 900000, httpOnly: true })
+                    return res.redirect('/')
+                } else {
+                    console.log('Authentication failed!');
+                    return res.send(view({
+                        error : 'auth failed'
+                    }))
+                }
+            })
            
         } catch (ex){
             res.status(500)

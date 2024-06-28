@@ -6,7 +6,8 @@ let yaml = require('js-yaml'),
         logsDir : './data/logs',
         ad : {
             url : null,
-            base : null
+            base : null,
+            forceDomain : null // if set will be appended to username egs, user@DOMAIN.COM, if not already set
         }
     }
 

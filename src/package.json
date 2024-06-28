@@ -27,7 +27,6 @@
         "uuid" : "10.0.0",
         "urljoin": "0.1.5",
         "winston-daily-rotate-file": "1.7.2",
-        "node-ad-tools": "1.2.1",        
         "activedirectory" : "0.7.2",
         "timebelt": "https://github.com/shukriadams/timebelt.git#0.1.17",
         "winston-wrapper": "https://github.com/shukriadams/winston-wrapper.git#0.1.0",
