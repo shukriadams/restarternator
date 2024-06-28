@@ -2,7 +2,25 @@
     {{#content "body"}}
 
         Dashboard        
+        {{#if device}}
 
+            {{#if available}}
+
+                {{#if poweredOn}}
+                    <button>
+                        Shutdown
+                    </button>
+                {{else}}
+                    <button>
+                        Power on
+                    </button>
+                {{/if}}
+            {{else}}
+                Not reachable
+            {{/if}}
+        {{else}}
+            No device found
+        {{/if}}
     {{/content}}
 
 {{/extend}}

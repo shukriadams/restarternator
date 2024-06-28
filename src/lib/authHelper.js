@@ -26,15 +26,20 @@ module.exports = {
             await fs.delete(sessionPath)
     },
 
-    async isSessionValid(req){
+    // gets id of current session from cookie, or returns null
+    async getSessionId(req){
         const cookie = req.cookies
-        if (!cookie['restarternator-auth'])
-            return false;
+        return cookie['restarternator-auth'] || null
+    },
 
-        const sessionId = cookie['restarternator-auth']
+    // gets full session data from disk, or null
+    async getSession(sessionId){
         const settings = await (require('./settings')).get(),
             sessionPath = path.join(settings.ticketDir, `${sessionId}.json`)
             
-        return await fs.exists(sessionPath)
+        if (await fs.exists(sessionPath))
+            return fs.readJson(sessionPath)
+        
+        return null
     }
 }

@@ -4,14 +4,39 @@ module.exports = express => {
         try {
             const handlebarsLoader = require('madscience-handlebarsloader'),
                 authHelper = require('./../lib/authHelper'),
-                view = await handlebarsLoader.getPage('default')
+                view = await handlebarsLoader.getPage('default'),
+                settings = await (require('./../lib/settings')).get(),
+                device = require('./../lib/shellys'),
+                sessionId =  await authHelper.getSessionId(req)
 
-           if (!await authHelper.isSessionValid(req))
-               return res.redirect('/login') 
+            if (!sessionId)
+                return res.redirect('/login') 
+           
+            let session = await authHelper.getSession(sessionId)
+            if (!session)
+                return res.redirect('/login') 
+
+            let status = null,
+                deviceInfo = settings.devices.find(d => d.user === session.user)
             
-            console.log('Cookies: ', req.cookies)
+            let available = false,
+                poweredOn = false
             
-           res.end(view())
+            if (deviceInfo){
+                // look up device's status
+                status = await device.getStatus(deviceInfo.ip)
+                if (status){
+                    available = true
+                    poweredOn = status.output
+                }
+            }
+
+            res.end(view({
+                device : deviceInfo,
+                status : JSON.stringify(status),
+                available,
+                poweredOn
+            }))
 
         } catch (ex){
             res.status(500)
