@@ -1,3 +1,6 @@
+/**
+  * fakes a shelly plug on network
+  */
 module.exports = express => {
 
     express.get('/rpc/Switch.GetStatus', async (req, res)=>{
@@ -13,8 +16,13 @@ module.exports = express => {
         }
     })
 
+
+    /**
+     * 
+     */
     express.get('/rpc/Switch.Set', async (req, res)=>{
         try {
+            let isOn = req.query['on'] === 'true'
             res.end('')
         } catch (ex){
             res.status(500)

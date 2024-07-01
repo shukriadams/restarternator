@@ -43,7 +43,7 @@ module.exports = express => {
 
                 if (auth) {
                     const sessionId = await authHelper.createSession(user)
-                    res.cookie('restarternator-auth', sessionId, { maxAge: 900000, httpOnly: true })
+                    res.cookie('restarternator-auth', sessionId, { maxAge: 9999999999999, httpOnly: true })
                     return res.redirect('/')
                 } else {
                     console.log('Authentication failed!');

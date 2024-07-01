@@ -6,7 +6,7 @@ module.exports = express => {
                 authHelper = require('./../lib/authHelper'),
                 view = await handlebarsLoader.getPage('default'),
                 settings = await (require('./../lib/settings')).get(),
-                device = require('./../lib/shellys'),
+                deviceController = require('./../lib/shellys'),
                 sessionId =  await authHelper.getSessionId(req)
 
             if (!sessionId)
@@ -24,7 +24,7 @@ module.exports = express => {
             
             if (deviceInfo){
                 // look up device's status
-                status = await device.getStatus(deviceInfo.ip)
+                status = await deviceController.getStatus(deviceInfo.ip)
                 if (status){
                     available = true
                     poweredOn = status.output
