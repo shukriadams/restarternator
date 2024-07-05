@@ -1,22 +1,15 @@
 module.exports = express => {
 
+
     /**
-     * 
+     * Sends a start signal to a device 
      */
-    express.get('/start', async (req, res)=>{
+    express.get('/start/:device', async (req, res)=>{
         try {
             const authHelper = require('./../lib/authHelper'),
-                sessionId =  await authHelper.getSessionId(req),
-                deviceController = require('./../lib/shellys')
+                deviceController = require('./../lib/shellys'),
+                session = authHelper.getSession(req, res)
 
-            if (!sessionId){
-                res.status(403)
-                return res.json({
-                    error : 'not authenticated'
-                })
-            }
-
-            let session = await authHelper.getSession(sessionId)
             if (!session){
                 res.status(403)
                 return res.json({
@@ -24,7 +17,7 @@ module.exports = express => {
                 })
             }
 
-            await deviceController()
+            await deviceController.start()
            
             res.send('')
            
@@ -36,24 +29,9 @@ module.exports = express => {
 
 
     /**
-     * 
+     * Sends a stop signal to a given device
      */
-    express.get('/restart', async (req, res)=>{
-        try {
-
-            res.send('')
-           
-        } catch (ex){
-            res.status(500)
-            res.end(`Error : ${ex}`)
-        }
-    })
-
-
-    /**
-     * 
-     */
-    express.get('/stop', async (req, res)=>{
+    express.get('/stop/:device', async (req, res)=>{
         try {
 
             res.send('')

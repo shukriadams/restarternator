@@ -33,13 +33,20 @@ module.exports = {
     },
 
     // gets full session data from disk, or null
-    async getSession(sessionId){
+    async getSession(req){
         const settings = await (require('./settings')).get(),
-            sessionPath = path.join(settings.ticketDir, `${sessionId}.json`)
+            cookie = req.cookies,
+            sessionId = cookie['restarternator-auth'] || null
+
+        if (!sessionId)
+            return null
+
+        const sessionPath = path.join(settings.ticketDir, `${sessionId}.json`)
             
         if (await fs.exists(sessionPath))
             return fs.readJson(sessionPath)
         
         return null
     }
+
 }
