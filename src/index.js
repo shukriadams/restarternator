@@ -27,6 +27,7 @@
         
         express.use(cookieParser())
         express.use(Express.urlencoded()) 
+        express.use(Express.static('./static'))
 
         for (const routeFile of routeFiles){
             const routeFileName = routeFile.match(/(.*).js/).pop(),

@@ -1,33 +1,40 @@
 {{#extend "layout"}}
     {{#content "body"}}
 
-        Dashboard        
-        {{#if device}}
+        <h2>Dashboard</h2>
 
-            {{#if available}}
-
-                {{#if poweredOn}}
-                    
-                    <button data-raction="stop">
-                        Shutdown
-                    </button>
-                    <button data-raction="restart">
-                        Reboot
-                    </button>
-                    <div data-ractionFeedback>
-
+        {{#if devices.length}}
+            {{#each devices}}
+                <div>
+                    <div>
+                        {{name}}
                     </div>
-                {{else}}
-                    <button data-raction="start">
-                        Power on
-                    </button>
-                {{/if}}
-            {{else}}
-                Not reachable
-            {{/if}}
+                    {{#if available}}
+                        {{#if poweredOn}}
+
+                            <button data-raction="stop" data-deviceid="{{id}}">
+                                Shutdown
+                            </button>
+                            <button data-raction="restart" data-deviceid="{{id}}">
+                                Reboot
+                            </button>
+                            <div data-ractionFeedback>
+
+                            </div>
+                        {{else}}
+                            <button data-raction="start" data-deviceid="{{id}}">
+                                Power on
+                            </button>
+                        {{/if}}
+                    {{else}}
+                        Not reachable
+                    {{/if}}
+                </div>
+            {{/each}}
         {{else}}
             No device found
         {{/if}}
+
     {{/content}}
 
 {{/extend}}

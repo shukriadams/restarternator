@@ -1,6 +1,7 @@
 let yaml = require('js-yaml'),
     fs = require('fs-extra'),
     process = require('process'),
+    crypto = require('crypto'),
     allowedTypes = ['shellys'],
     settings = {
         port: 5100,
@@ -17,12 +18,15 @@ let yaml = require('js-yaml'),
         ]
     },
     deviceTemplate = {
-        'name': null,
-        'user': null,               // unique, fixed user id, from auth system.
-        'ip': null,
-        'type' : 'shellys',         // allowed values : shellys
-        'restartDelay': 20,
-        'enabled': true        
+        'id' : null,            // calculated at runtime, hash of name+user
+        'name': null,           // REQUIRED. Cosmetic
+        'user': null,           // REQUIRED. fixed user id, from auth system.
+        'address': null,        // REQUIRED. IP:PORT of device
+        'type' : 'shellys',     // allowed values : shellys
+        'restartDelay': 20,     // OPTIONAL.
+        'enabled': true,        // OPTIONAL.
+        'available': false,     // calculated at runtime   
+        'poweredOn' : false     // calculated at runtime
     }
 
 module.exports = {
@@ -39,8 +43,11 @@ module.exports = {
             // apply default device values + structure to devices
             let errors = false
             for (let i = 0; i < settings.devices.length ; i ++){
-                settings.devices[i] = Object.assign(deviceTemplate, settings.devices[i])
+                settings.devices[i] = Object.assign(JSON.parse(JSON.stringify(deviceTemplate)) , settings.devices[i])
                 
+                // calculate id
+                settings.devices[i].id = crypto.createHash('md5').update(`${settings.devices[i].name}_${settings.devices[i].user}`).digest('hex')
+
                 // verify settings
                 const device = settings.devices[i]
                 if (!device.name){
@@ -53,8 +60,8 @@ module.exports = {
                     errors = true
                 }
 
-                if (!device.ip){
-                    console.error(`Device ${JSON.stringify(device)} has no ip`)
+                if (!device.address){
+                    console.error(`Device ${JSON.stringify(device)} has no address`)
                     errors = true
                 }
 

@@ -26,12 +26,6 @@ module.exports = {
             await fs.delete(sessionPath)
     },
 
-    // gets id of current session from cookie, or returns null
-    async getSessionId(req){
-        const cookie = req.cookies
-        return cookie['restarternator-auth'] || null
-    },
-
     // gets full session data from disk, or null
     async getSession(req){
         const settings = await (require('./settings')).get(),
