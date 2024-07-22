@@ -98,10 +98,37 @@ module.exports = express => {
      */
     express.post('/device/restart/:device', async (req, res)=>{
         try {
+            const authHelper = require('./../lib/authHelper'),
+                deviceController = require('./../lib/shellys'),
+                timebelt = require('timebelt'),
+                settings = await (require('./../lib/settings')).get(),
+                session = await authHelper.getSession(req, res)
+
+            if (!session){
+                res.status(403)
+                return res.json({
+                    error : 'not authenticated'
+                })
+            }
+
+            device = settings.devices.find(d => d.user === session.user && d.id === req.params.device)
+            if (!device){
+                res.status(403)
+                return res.json({
+                    success: false,
+                    result: null,
+                    message: `Invalid device or user does cannot interact.`
+                })
+            }
+
+            const stopResult = await deviceController.stop(device)
+            await timebelt.pause(device.restartDelay * 1000)
+            const startResult = await deviceController.start(device)
+           
             res.json({
                 sucess: true,
-                result : null,
-                message : `NOT IMPLEMENTED YET`
+                result,
+                message : `Device ${req.params.device} restarted`
             })
            
         } catch (ex){

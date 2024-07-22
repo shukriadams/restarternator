@@ -1,19 +1,21 @@
 {
-    "id" : 0, 
-    "source" : "button", 
-    "output" : true, 
-    "apower" : 0.0, 
-    "voltage" : 232.2, 
-    "current" : 0.000, 
-    "aenergy" : {
-        "total":0.000,
-        "by_minute":[
-            0.000,
-            0.000,
-            0.000
+    "id": 0,
+    "source": "button",
+    "output": true,
+    "apower": 0,
+    "voltage": 232.2,
+    "current": 0,
+    "aenergy": {
+        "total": 0,
+        "by_minute": [
+            0,
+            0,
+            0
         ],
-    "minute_ts" : 1719415258},
-    "temperature" : {
-        "tC":45.6, 
-        "tF":114.0}
+        "minute_ts": 1719415258
+    },
+    "temperature": {
+        "tC": 45.6,
+        "tF": 114
+    }
 }

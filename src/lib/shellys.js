@@ -1,8 +1,8 @@
 module.exports = {
     
-    async getStatus(ip){
+    async getStatus(device){
         const httpUtils = require('madscience-httputils')
-            const url = `http://${ip}/rpc/Switch.GetStatus?id=0` 
+            const url = `http://${device.address}/rpc/Switch.GetStatus?id=0` 
 
             let t = await httpUtils.downloadJSON(url)
             return t

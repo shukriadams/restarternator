@@ -17,7 +17,7 @@ module.exports = express => {
             
             for (let device of devices){
                 // look up device's status
-                let status = await deviceController.getStatus(device.address)
+                let status = await deviceController.getStatus(device)
                 if (status){
                     device.available = true
                     device.poweredOn = status.output
