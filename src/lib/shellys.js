@@ -8,16 +8,16 @@ module.exports = {
             return t
     },
 
-    async turnOn(ip){
+    async start(device){
         const httpUtils = require('madscience-httputils')
-        const url = `http://${ip}/rpc/Switch.Set?id=0&on=true` 
+        const url = `http://${device.address}/rpc/Switch.Set?id=0&on=true` 
         return await httpUtils.downloadString(url)
 
     },
 
-    async turnOff(ip){
+    async stop(device){
         const httpUtils = require('madscience-httputils')
-        const url = `http://${ip}/rpc/Switch.Set?id=0&on=false` 
+        const url = `http://${device.address}/rpc/Switch.Set?id=0&on=false` 
         return await httpUtils.downloadString(url)
     }
 
