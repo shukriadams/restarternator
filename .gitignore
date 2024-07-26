@@ -3,3 +3,6 @@ src/package-lock.json
 vagrant/virtio/.vagrant
 src/config.yml
 src/data/
+vagrant/hyperv/.vagrant/
+build/.stage
+

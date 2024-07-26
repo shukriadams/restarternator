@@ -1,0 +1,9 @@
+version: "2"
+services:
+  test:
+    image: shukriadams/restarternator:latest
+    container_name: restarternator-test
+    restart: unless-stopped
+    # command: /bin/sh -c  "while true ;sleep 5; do continue; done"
+    ports:
+    - "5101:5100"
