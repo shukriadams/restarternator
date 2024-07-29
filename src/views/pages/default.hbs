@@ -1,38 +1,49 @@
 {{#extend "layout"}}
     {{#content "body"}}
 
-        <h2>Dashboard</h2>
-
         {{#if devices.length}}
             {{#each devices}}
-                <div>
+                <div data-pollid="{{id}}">
                     <div>
                         {{name}}
                     </div>
-                    {{#if available}}
-                        {{#if poweredOn}}
 
-                            <button data-raction="stop" data-deviceid="{{id}}">
-                                Shutdown
-                            </button>
-                            <button data-raction="restart" data-deviceid="{{id}}">
-                                Reboot
-                            </button>
-                            <div data-ractionFeedback>
+                    <div class="device-poweredOnContent {{#eq status "poweredon"}}--visible{{/eq}}">
+                        <button class="button --warning" data-raction="stop" data-deviceid="{{id}}">
+                            Shutdown
+                        </button>
+                        <button class="button --warning" data-raction="restart" data-deviceid="{{id}}">
+                            Reboot
+                        </button>
+                        <div data-ractionFeedback>
 
-                            </div>
-                        {{else}}
-                            <button data-raction="start" data-deviceid="{{id}}">
-                                Power on
-                            </button>
-                        {{/if}}
-                    {{else}}
-                        Not reachable
-                    {{/if}}
+                        </div>
+                    </div>
+
+                    <div class="device-poweredOffContent {{#eq status "poweredoff"}}--visible{{/eq}}" >
+                        <button class="button --success" data-raction="start" data-deviceid="{{id}}">
+                            Power on
+                        </button>
+                    </div>
+
+                    <div class="device-unavailableContent {{#eq status "unavailable"}}--visible{{/eq}}" >
+                        <button data-raction="start" data-deviceid="{{id}}">
+                            Not reachable
+                        </button>
+                    </div>
+
+                    <div class="device-restarting">
+                        Device rebooting, this normally takes about {{restartDelay}} seconds
+                    </div>
+
+                    <div class="device-gettingStatus --visible">
+                        Getting status ...
+                    </div>
+
                 </div>
             {{/each}}
         {{else}}
-            No device found
+            No devices found
         {{/if}}
 
     {{/content}}

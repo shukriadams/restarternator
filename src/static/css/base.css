@@ -1,0 +1,43 @@
+body {
+    padding-top: 64px;
+}
+
+.device-poweredOnContent {
+    display: none;
+}
+
+.device-poweredOffContent {
+    display: none;
+}
+
+.device-gettingStatus{
+    display: none;
+}
+
+.device-unavailableContent {
+    display: none;
+}
+
+.device-restarting{
+    display: none;
+}
+
+.device-poweredOnContent.--visible {
+    display: block;
+}
+
+.device-poweredOffContent.--visible {
+    display: block;
+}
+
+.device-unavailableContent.--visible {
+    display: block;
+}
+
+.device-gettingStatus.--visible {
+    display: block;
+}
+
+.device-restarting.--visible{
+    display: block;
+}

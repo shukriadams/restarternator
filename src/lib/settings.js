@@ -1,12 +1,12 @@
 let yaml = require('js-yaml'),
     fs = require('fs-extra'),
-    process = require('process'),
     crypto = require('crypto'),
     allowedTypes = ['shellys'],
     settings = {
         port: 5100,
         ticketDir : './data/tickets',
         logsDir : './data/logs',
+        deviceFlags : './data/deviceFlags',
         ad : {
             url : null,
             base : null,

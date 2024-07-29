@@ -6,27 +6,15 @@ module.exports = express => {
                 authHelper = require('./../lib/authHelper'),
                 view = await handlebarsLoader.getPage('default'),
                 settings = await (require('./../lib/settings')).get(),
-                deviceController = require('./../lib/shellys'),
                 session =  await authHelper.getSession(req)
 
             if (!session)
                 return res.redirect('/login') 
 
-            let status = null,
-                devices = settings.devices.filter(d => d.user === session.user)
-            
-            for (let device of devices){
-                // look up device's status
-                let status = await deviceController.getStatus(device)
-                if (status){
-                    device.available = true
-                    device.poweredOn = status.output
-                }
-            }
+            let devices = settings.devices.filter(d => d.user === session.user)
 
             res.end(view({
-                devices,
-                status : JSON.stringify(status)
+                devices
             }))
 
         } catch (ex){

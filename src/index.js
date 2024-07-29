@@ -13,14 +13,17 @@
         await fs.ensureDir(settings.ticketDir)
         await fs.ensureDir(settings.logsDir)
 
-        
+        // force wipe flags on app start, these must not persist
+        await fs.remove(settings.deviceFlags)
+        await fs.ensureDir(settings.deviceFlags)
+
         express.set('json spaces', 4)
 
         handlebarsLoader.initialize({ 
             forceInitialize : !settings.cacheViews,
             helpers : `${__dirname}/views/helpers`,
             pages : `${__dirname}/views/pages`,
-            partials : `${__dirname}/views/partials`,
+            partials : `${__dirname}/views/partials`
         })
 
         routeFiles = await fs.readdir(path.join(__dirname, 'routes'))
@@ -36,8 +39,6 @@
             route(express)
             console.log(`Loaded route ${routeFile}`)
         }
-
-        
 
         let server = http.createServer(express)
         server.listen(settings.port)

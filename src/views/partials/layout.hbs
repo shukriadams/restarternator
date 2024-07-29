@@ -2,20 +2,38 @@
     <head>
         {{{block "basehead"}}}
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="/content/css/bootstrip.css" type="text/css">
-        <link rel="stylesheet" href="/content/css/bootstrip-theme-default.css" type="text/css">
-        <link rel="stylesheet" href="/content/css/overrides.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrip.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrip-theme-default.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrip-theme-darkmoon.css" type="text/css">
+        <link rel="stylesheet" href="/css/bootstrip-overrides.css" type="text/css">
+        <link rel="stylesheet" href="/css/base.css" type="text/css">
         <title>{{title}}</title>
     </head>
     <body>
-        <div>
-            {{{block "body"}}}
-        </div>
+        <x-header class="--sticky --clamped">
+            <x-clamp>
+                <x-header-logocontainer>
+                    <a href="/">
+                        <i class="icon icon-cube"></i>
+                        <x-header-logo>
+                            The Restarternator
+                        </x-header-logo>
+                    </a>
+                </x-header-logocontainer>
+            </x-clamp>
+        </x-header>
+        
+        <x-clamp>
+            <section>
+                {{{block "body"}}}
+            </section>
+        </x-clamp>
 
         <div>
             {{{block "footer"}}}
         </div>
-        
+
+        <script src="/js/bootstrip.js"></script>
         <script src="/js/base.js"></script>
 
     </body>

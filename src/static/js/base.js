@@ -1,28 +1,5 @@
 (()=>{
 
-    async function postJsonReceiveJson(url){
-        return new Promise((resolve, reject)=>{
-            try {
-                fetch(url, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' }
-                }).then(response => {
-                    response.json().then(data => {
-                        resolve(data)
-                    }).error(err => {
-                        reject(err)
-                    })
-                }).error(err => {
-                    reject(err)
-                })
-            }
-            catch (ex)
-            {
-                reject(ex)
-            }
-        })
-    }
-
     async function stopDevice(deviceid){
         if (!confirm('Are you sure you want to stop this device?'))
             return
@@ -65,6 +42,45 @@
             console.log(response)
     }
 
+    async function pollStatus(parentNode){
+        const deviceid = parentNode.getAttribute('data-pollid'),
+            poweredOnNode = parentNode.querySelector('.device-poweredOnContent'),
+            poweredOffNode = parentNode.querySelector('.device-poweredOffContent'),
+            unavailableNode = parentNode.querySelector('.device-unavailableContent'),
+            gettingStatus = parentNode.querySelector('.device-gettingStatus'),
+            restartingNode = parentNode.querySelector('.device-restarting'),
+            
+            getDeviceStatus = async ()=>{
+        
+                const response = await fetch(`/device/status/${encodeURIComponent(deviceid)}`),
+                    statusReponse = await response.json()
+                
+                console.log(statusReponse)
+        
+                gettingStatus.classList.remove('--visible')
+        
+                poweredOnNode.classList.remove('--visible')
+                poweredOffNode.classList.remove('--visible')
+                unavailableNode.classList.remove('--visible')
+                restartingNode.classList.remove('--visible')
+
+                if (statusReponse.result.status === 'poweredOn')
+                    poweredOnNode.classList.add('--visible')
+                else if (statusReponse.result.status === 'poweredOff')
+                    poweredOffNode.classList.add('--visible')
+                else if (statusReponse.result.status === 'restarting')
+                    restartingNode.classList.add('--visible')
+                else 
+                    unavailableNode.classList.add('--visible')
+            }
+        
+        setInterval(async()=>{
+            await getDeviceStatus()
+        }, 5000)
+
+        await getDeviceStatus()
+    }
+
     // bind stop
     const stopButtons = document.querySelectorAll('[data-raction="stop"]')
     for(let stopButton of stopButtons){
@@ -94,4 +110,13 @@
             })
         })(restartButton)
     }
+
+    // bind polling
+    const polls = document.querySelectorAll('[data-pollid]')
+    for(let poll of polls){
+        (async(poll)=>{
+            await pollStatus(poll)
+        })(poll)
+    }
+
 })()

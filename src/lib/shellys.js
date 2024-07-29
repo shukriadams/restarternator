@@ -5,6 +5,7 @@ module.exports = {
             const url = `http://${device.address}/rpc/Switch.GetStatus?id=0` 
 
             let t = await httpUtils.downloadJSON(url)
+            
             return t
     },
 
