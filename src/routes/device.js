@@ -4,7 +4,6 @@ module.exports = express => {
         try {
             const path = require('path'),
                 authHelper = require('./../lib/authHelper'),
-                deviceController = require('./../lib/shellys'),
                 settings = await (require('./../lib/settings')).get(),
                 session = await authHelper.getSession(req, res)
 
@@ -25,13 +24,14 @@ module.exports = express => {
                 })
             }
 
-            let result = await deviceController.getStatus(device),
-                status = 'unavailable'
+            let status = 'unavailable'
                 
-            if(result.output === true)
-                status = 'poweredOn'
-            else
-                status = 'poweredOff'
+            if (device.status.reachable){
+                if (device.status.poweredOn === true)
+                    status = 'poweredOn'
+                else
+                    status = 'poweredOff'
+            }
 
             // check if device is being restarted
             const deviceFlagPath = path.join(settings.deviceFlags, `${req.params.device}.json`)

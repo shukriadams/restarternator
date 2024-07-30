@@ -5,6 +5,7 @@
             handlebarsLoader = require('madscience-handlebarsloader'),
             http = require('http'),
             settings = await (require('./lib/settings')).get(),
+            daemon = require('./lib/daemon'),
             express = Express(),
             cookieParser = require('cookie-parser'),
             path = require('path'),
@@ -39,6 +40,8 @@
             route(express)
             console.log(`Loaded route ${routeFile}`)
         }
+
+        await daemon.start()
 
         let server = http.createServer(express)
         server.listen(settings.port)

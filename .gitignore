@@ -10,3 +10,5 @@ src/static/css/bootstrip-theme-darkmoon.css
 src/static/css/bootstrip-theme-default.css
 src/static/css/bootstrip.css
 src/static/js/bootstrip.js
+deviceStubs/shellys/node_modules
+deviceStubs/shellys/package-lock.json

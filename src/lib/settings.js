@@ -2,11 +2,15 @@ let yaml = require('js-yaml'),
     fs = require('fs-extra'),
     crypto = require('crypto'),
     allowedTypes = ['shellys'],
+    _instance = null,
     settings = {
         port: 5100,
+        // info be error|warn|info|debug in increasing levels of spamminess.
+        logLevel: 'info',
         ticketDir : './data/tickets',
         logsDir : './data/logs',
         deviceFlags : './data/deviceFlags',
+        daemonCron: '*/10 * * * * *', // 10 seconds
         ad : {
             url : null,
             base : null,
@@ -18,20 +22,32 @@ let yaml = require('js-yaml'),
         ]
     },
     deviceTemplate = {
-        'id' : null,            // calculated at runtime, hash of name+user
-        'name': null,           // REQUIRED. Cosmetic
-        'user': null,           // REQUIRED. fixed user id, from auth system.
-        'address': null,        // REQUIRED. IP:PORT of device
-        'type' : 'shellys',     // allowed values : shellys
-        'restartDelay': 20,     // OPTIONAL. Dealy, in seconds, between device stop and start
-        'enabled': true,        // OPTIONAL.
-        'available': false,     // calculated at runtime   
-        'poweredOn' : false     // calculated at runtime
+        id : null,                  // calculated at runtime, hash of name+user
+        name: null,                 // REQUIRED. Cosmetic
+        user: null,                 // REQUIRED. fixed user id, from auth system.
+        address: null,              // REQUIRED. IP:PORT of device
+        type: 'shellys',            // allowed values : shellys
+        restartDelay: 20,           // OPTIONAL. Dealy, in seconds, between device stop and start
+        enabled: true,              // OPTIONAL.
+        available: false,           // calculated at runtime   
+        poweredOn : false,          // calculated at runtime
+
+        status:  {                  // last retrieved status of device, set by daemon
+            failedAttempts : 0,     // nr of times contact has failed
+            lastResponse: null,     // object last retrieved from device
+            lastResponseTime: null,  // time last object was successfully polled
+            poweredOn: false,
+            reachable: false,
+            descripion: ''          // short status description written by daemon
+        }
     }
 
 module.exports = {
     async get(){
         const settingsYML = './config.yml'
+
+        if (!!_instance)
+            return _instance
 
         if (await fs.exists(settingsYML)){
             let settingsrawYml = await fs.readFile(settingsYML, 'utf8')
@@ -80,8 +96,9 @@ module.exports = {
             if (!settings.ad.base)
                 console.error('SETTINGS ERROR : missing ad.base')
         }
+        
+        _instance = settings
 
-
-        return settings
+        return _instance
     }
 }
