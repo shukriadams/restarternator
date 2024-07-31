@@ -37,6 +37,7 @@ let yaml = require('js-yaml'),
             failedAttempts : 0,     // nr of times contact has failed
             lastResponse: null,     // object last retrieved from device
             lastResponseTime: null, // time last object was successfully polled
+            initializing : true,
             poweredOn: false,
             reachable: false,
             showAsOn: false,

@@ -41,7 +41,11 @@ module.exports = {
                         let result = await deviceController.getStatus(deviceConfig)
 
                         deviceConfig.status.statePending = false
+                        const previousReachable = deviceConfig.status.reachable
+                            firstRead = deviceConfig.status.initializing
 
+                        deviceConfig.status.initializing = false
+                        
                         if (result.success){
                             deviceConfig.status.failedAttempts = 0
                             deviceConfig.status.reachable = true
@@ -55,6 +59,11 @@ module.exports = {
                             deviceConfig.status.reachable = false
                             deviceConfig.status.description = 'Device currently not reachable'
                         }
+                        
+                        if (!firstRead && previousReachable != deviceConfig.status.reachable){
+                            log.info(`Device ${deviceConfig.name} reachability changed, reading is ${JSON.stringify(result)} `)
+                        }
+
 
                     } catch(ex) {        
                         log.error(ex)

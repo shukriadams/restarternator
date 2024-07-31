@@ -14,6 +14,7 @@ module.exports = {
                 const json = JSON.parse(t.body)
                 return {
                     success: true,
+                    raw : json,
                     poweredOn : json.output === true,
                     showAsOn : json.current > device.showAsOnThreshold
                 }
