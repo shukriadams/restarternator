@@ -41,7 +41,7 @@ module.exports = {
                         let result = await deviceController.getStatus(deviceConfig)
 
                         deviceConfig.status.statePending = false
-                        const previousReachable = deviceConfig.status.reachable
+                        const previousReachable = deviceConfig.status.reachable,
                             firstRead = deviceConfig.status.initializing
 
                         deviceConfig.status.initializing = false
@@ -51,7 +51,7 @@ module.exports = {
                             deviceConfig.status.reachable = true
                             deviceConfig.status.description = 'Device reachable'
                             deviceConfig.status.lastResponseTime = new Date()
-                            deviceConfig.status.lastResponse = result.result
+                            deviceConfig.status.lastResponse = result.raw
                             deviceConfig.status.poweredOn = result.poweredOn === true
                             deviceConfig.status.showAsOn = result.showAsOn === true
                         } else {

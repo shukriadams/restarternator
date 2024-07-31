@@ -23,6 +23,11 @@
                 // write to file
                 const status = await fs.readJson('./status.json')
                 status.output = turnOn
+                
+                if (turnOn === true)
+                    status.apower = 50.12
+                else
+                    status.apower =  0
 
                 await fs.writeJson('./status.json', status, {
                     spaces : 4

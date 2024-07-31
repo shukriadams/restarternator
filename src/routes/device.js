@@ -61,9 +61,12 @@ module.exports = express => {
      * Sends a start signal to a device 
      */
     express.post('/device/start/:device', async (req, res)=>{
+        const log = await (require('./../lib/log')).get()
+
         try {
             const authHelper = require('./../lib/authHelper'),
                 deviceController = require('./../lib/shellys'),
+                timebelt = require('timebelt'),
                 settings = await (require('./../lib/settings')).get(),
                 session = await authHelper.getSession(req, res)
 
@@ -85,28 +88,31 @@ module.exports = express => {
             }
 
             device.status.statePending = true
-            device.state.pauseUpdates = true
+            device.status.pauseUpdates = true
             
+
             try {
                 // if device is already on, need to cycle
                 if (device.status.poweredOn){
+                    log.info(`Starting device ${req.params.device}, device is already marked as up, forcing down first`)
 
                     const stopResult = await deviceController.stop(device)
                     await timebelt.pause(device.drainTime * 1000)
                 }
+                log.info(`Starting device ${req.params.device}, bringing up now`)
                 const startResult = await deviceController.start(device)
+                res.json({
+                    success: true,
+                    result : startResult,
+                    message : `Device ${req.params.device} restarted`
+                })
 
             } finally {
-                device.state.pauseUpdates = false
+                device.status.pauseUpdates = false
             }
            
-            res.json({
-                success: true,
-                result,
-                message : `Device ${req.params.device} restarted`
-            })
-           
         } catch (ex){
+            log.error(ex)
             res.status(500)
             res.json({
                 success: false,
@@ -121,6 +127,8 @@ module.exports = express => {
      * Sends a stop signal to a given device
      */
     express.post('/device/stop/:device', async (req, res)=>{
+        const log = await (require('./../lib/log')).get()
+
         try {
             const authHelper = require('./../lib/authHelper'),
                 deviceController = require('./../lib/shellys'),
@@ -144,6 +152,8 @@ module.exports = express => {
                 })
             }
 
+            log.info(`Stopping device ${req.params.device}, bringing device down`)
+
             device.status.statePending = true
             const result = await deviceController.stop(device)
            
@@ -154,6 +164,7 @@ module.exports = express => {
             })
            
         } catch (ex){
+            log.error(ex)
             res.status(500)
             res.json({
                 success: false,
@@ -168,12 +179,13 @@ module.exports = express => {
      * Sends a restart signal to a given device
      */
     express.post('/device/restart/:device', async (req, res)=>{
+        const log = await (require('./../lib/log')).get()
+
         try {
+            log.info(`Received restart order for device ${req.params.device}`)
             const authHelper = require('./../lib/authHelper'),
                 deviceController = require('./../lib/shellys'),
                 timebelt = require('timebelt'),
-                fs = require('fs-extra'),
-                path= require('path'),
                 settings = await (require('./../lib/settings')).get(),
                 session = await authHelper.getSession(req, res)
 
@@ -193,27 +205,31 @@ module.exports = express => {
                     message: `Invalid device or user does cannot interact.`
                 })
             }
-
+            
             device.status.statePending = true
-            device.state.pauseUpdates = true
+            device.status.pauseUpdates = true
 
+            log.info(`Restarting for device ${req.params.device}, taking device down`)
             const stopResult = await deviceController.stop(device)
 
             await timebelt.pause(device.drainTime * 1000)
 
             try {
+                log.info(`Restarting for device ${req.params.device}, bringing device up`)
                 const startResult = await deviceController.start(device)
-            }finally{
-                device.state.pauseUpdates = false
-            }
 
-            res.json({
-                success: true,
-                result,
-                message : `Device ${req.params.device} restarted`
-            })
+                res.json({
+                    success: true,
+                    result : startResult,
+                    message : `Device ${req.params.device} restarted`
+                })
+    
+            }finally{
+                device.status.pauseUpdates = false
+            }
            
         } catch (ex){
+            log.error(ex)
             res.status(500)
             res.json({
                 success: false,
