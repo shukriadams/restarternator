@@ -30,7 +30,7 @@ module.exports = express => {
             let status = 'unavailable'
                 
             if (device.status.reachable){
-                if (device.status.poweredOn === true)
+                if (device.status.showAsOn === true)
                     status = 'poweredOn'
                 else
                     status = 'poweredOff'
@@ -85,7 +85,20 @@ module.exports = express => {
             }
 
             device.status.statePending = true
-            const result = await deviceController.start(device)
+            device.state.pauseUpdates = true
+            
+            try {
+                // if device is already on, need to cycle
+                if (device.status.poweredOn){
+
+                    const stopResult = await deviceController.stop(device)
+                    await timebelt.pause(device.drainTime * 1000)
+                }
+                const startResult = await deviceController.start(device)
+
+            } finally {
+                device.state.pauseUpdates = false
+            }
            
             res.json({
                 success: true,
@@ -186,20 +199,11 @@ module.exports = express => {
 
             const stopResult = await deviceController.stop(device)
 
-            // write restart flag
-            const deviceFlagPath = path.join(settings.deviceFlags, `${req.params.device}.json`)
-            await fs.writeJson(deviceFlagPath, {
-                date : new Date(),
-                state: 'restarting',
-                message : 'Restarting device' 
-            })
-
             await timebelt.pause(device.drainTime * 1000)
 
             try {
                 const startResult = await deviceController.start(device)
             }finally{
-                await fs.remove(deviceFlagPath)
                 device.state.pauseUpdates = false
             }
 

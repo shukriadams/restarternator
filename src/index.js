@@ -14,10 +14,6 @@
         await fs.ensureDir(settings.ticketDir)
         await fs.ensureDir(settings.logsDir)
 
-        // force wipe flags on app start, these must not persist
-        await fs.remove(settings.deviceFlags)
-        await fs.ensureDir(settings.deviceFlags)
-
         express.set('json spaces', 4)
 
         handlebarsLoader.initialize({ 
