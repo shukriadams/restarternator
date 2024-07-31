@@ -1,8 +1,11 @@
+
+
 module.exports = express => {
 
     express.delete('/session', async (req, res)=>{
         try {
             const authHelper = require('./../lib/authHelper'),
+                log = await (require('./../lib/log')).get(),
                 session = await authHelper.getSession(req)
 
             if (session)
@@ -11,12 +14,15 @@ module.exports = express => {
             return res.redirect('/') 
 
         } catch (ex){
+            log.error(ex)
             res.status(500)
             res.end(`Error : ${ex}`)
         }
     })
 
     express.post('/session', async (req, res)=>{
+        const log = await (require('./../lib/log')).get()
+
         try {
             let handlebarsLoader = require('madscience-handlebarsloader'),
                 settings = await (require('./../lib/settings')).get(),
@@ -37,8 +43,8 @@ module.exports = express => {
 
             ad.authenticate(user, password, async(err, auth) => {
                 if (err) {
-                    console.log('ERROR: '+JSON.stringify(err));
-                    console.log(res)
+                    log.error('ERROR: '+JSON.stringify(err));
+                    log.error(res)
                     return res.send(view({
                         error : res
                     }))
@@ -48,7 +54,7 @@ module.exports = express => {
                     const sessionId = await authHelper.createSession(user, res)
                     return res.redirect('/')
                 } else {
-                    console.log('Authentication failed!');
+                    log.error('Authentication failed!');
                     return res.send(view({
                         error : 'auth failed'
                     }))
@@ -56,6 +62,7 @@ module.exports = express => {
             })
            
         } catch (ex){
+            log.error(ex)
             res.status(500)
             res.end(`Error : ${ex}`)
         }
