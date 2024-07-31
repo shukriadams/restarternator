@@ -1,5 +1,16 @@
 (()=>{
 
+    async function logout(){
+        if (!confirm('Are you sure you want to logout?'))
+            return
+
+        const response = await fetch(`/session`, {
+            method: 'DELETE'
+        })
+
+        window.location = window.location
+    }
+
     async function stopDevice(deviceid){
         if (!confirm('Are you sure you want to stop this device?'))
             return
@@ -77,6 +88,14 @@
         }, 5000)
 
         await getDeviceStatus(parentNode)
+    }
+
+    // bind logout
+    const btnLogout = document.querySelector('.logout')
+    if (btnLogout){
+        btnLogout.addEventListener('click', async event => {
+            await logout()
+        })
     }
 
     // bind stop

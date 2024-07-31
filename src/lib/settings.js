@@ -27,7 +27,7 @@ let yaml = require('js-yaml'),
         user: null,                 // REQUIRED. fixed user id, from auth system.
         address: null,              // REQUIRED. IP:PORT of device
         type: 'shellys',            // allowed values : shellys
-        restartDelay: 20,           // OPTIONAL. Dealy, in seconds, between device stop and start
+        drainTime: 20,              // OPTIONAL. Dealy, in seconds, between device stop and start
         enabled: true,              // OPTIONAL.
         available: false,           // calculated at runtime   
         poweredOn : false,          // calculated at runtime

@@ -194,7 +194,7 @@ module.exports = express => {
                 message : 'Restarting device' 
             })
 
-            await timebelt.pause(device.restartDelay * 1000)
+            await timebelt.pause(device.drainTime * 1000)
 
             try {
                 const startResult = await deviceController.start(device)

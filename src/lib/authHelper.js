@@ -3,11 +3,13 @@ const path = require('path')
 
 module.exports = {
 
-    async createSession(user, ){
+    async createSession(user,res ){
         const settings = await (require('./settings')).get(),
             { v4: uuidv4 } = require('uuid'),
             sessionId = uuidv4(),
             sessionPath = path.join(settings.ticketDir, `${sessionId}.json`)
+
+        res.cookie('restarternator-auth', sessionId, { maxAge: 9999999999999, httpOnly: true })
 
         await fs.writeJson(sessionPath, {
             date : new Date(),
@@ -18,12 +20,14 @@ module.exports = {
         return sessionId
     },
 
-    async deleteSession(sessionId){
+    async deleteSession(session, req){
         const settings = await (require('./settings')).get(),
-            sessionPath = path.join(settings.ticketDir, `${sessionId}.json`)
+            sessionPath = path.join(settings.ticketDir, `${session.sessionId}.json`)
 
         if (await fs.exists(sessionPath))
-            await fs.delete(sessionPath)
+            await fs.remove(sessionPath)
+
+        res.cookie('restarternator-auth', sessionId, { maxAge: 9999999999999, httpOnly: true })
     },
 
     // gets full session data from disk, or null
