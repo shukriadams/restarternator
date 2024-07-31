@@ -28,13 +28,19 @@ module.exports = {
             let calls = 0
 
             for (let deviceConfig of settings.devices){
+
                 if (!deviceConfig.enabled)
                     continue
                 
+                if (deviceConfig.status.pauseUpdates)
+                    continue
+
                 (async (deviceConfig)=>{
                     try {
                         calls ++
                         let result = await deviceController.getStatus(deviceConfig)
+
+                        deviceConfig.status.statePending = false
 
                         if (result.success){
                             deviceConfig.status.failedAttempts = 0

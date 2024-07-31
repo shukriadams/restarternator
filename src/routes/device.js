@@ -9,14 +9,17 @@ module.exports = express => {
 
             if (!session){
                 res.status(403)
+
                 return res.json({
                     error : 'not authenticated'
                 })
             }
 
             device = settings.devices.find(d => d.user === session.user && d.id === req.params.device)
+            
             if (!device){
                 res.status(403)
+
                 return res.json({
                     success: false,
                     result: null,
@@ -33,13 +36,8 @@ module.exports = express => {
                     status = 'poweredOff'
             }
 
-            // check if device is being restarted
-            const deviceFlagPath = path.join(settings.deviceFlags, `${req.params.device}.json`)
-            if (await fs.exists(deviceFlagPath)){
-                const flag = await fs.readJson(deviceFlagPath)
-                if (flag.state == 'restarting')
-                    status = 'restarting'
-            }
+            if (device.status.statePending)
+                status = 'statePending'
 
             res.json({
                 success: true,
@@ -86,6 +84,7 @@ module.exports = express => {
                 })
             }
 
+            device.status.statePending = true
             const result = await deviceController.start(device)
            
             res.json({
@@ -132,6 +131,7 @@ module.exports = express => {
                 })
             }
 
+            device.status.statePending = true
             const result = await deviceController.stop(device)
            
             res.json({
@@ -181,6 +181,9 @@ module.exports = express => {
                 })
             }
 
+            device.status.statePending = true
+            device.state.pauseUpdates = true
+
             const stopResult = await deviceController.stop(device)
 
             // write restart flag
@@ -192,10 +195,12 @@ module.exports = express => {
             })
 
             await timebelt.pause(device.restartDelay * 1000)
+
             try {
                 const startResult = await deviceController.start(device)
             }finally{
                 await fs.remove(deviceFlagPath)
+                device.state.pauseUpdates = false
             }
 
             res.json({

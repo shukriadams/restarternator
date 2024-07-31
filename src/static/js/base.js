@@ -43,42 +43,40 @@
     }
 
     async function pollStatus(parentNode){
-        const deviceid = parentNode.getAttribute('data-pollid'),
-            poweredOnNode = parentNode.querySelector('.device-poweredOnContent'),
-            poweredOffNode = parentNode.querySelector('.device-poweredOffContent'),
-            unavailableNode = parentNode.querySelector('.device-unavailableContent'),
-            gettingStatus = parentNode.querySelector('.device-gettingStatus'),
-            restartingNode = parentNode.querySelector('.device-restarting'),
             
-            getDeviceStatus = async ()=>{
-        
+            getDeviceStatus = async (parentNode)=>{
+                const deviceid = parentNode.getAttribute('data-pollid'),
+                    poweredOnNode = parentNode.querySelector('.device-poweredOnContent'),
+                    poweredOffNode = parentNode.querySelector('.device-poweredOffContent'),
+                    unavailableNode = parentNode.querySelector('.device-unavailableContent'),
+                    gettingStatus = parentNode.querySelector('.device-gettingStatus'),
+                    statePending = parentNode.querySelector('.device-gettingStatus')
+    
                 const response = await fetch(`/device/status/${encodeURIComponent(deviceid)}`),
                     statusReponse = await response.json()
-                
-                console.log(statusReponse)
         
                 gettingStatus.classList.remove('--visible')
         
                 poweredOnNode.classList.remove('--visible')
                 poweredOffNode.classList.remove('--visible')
                 unavailableNode.classList.remove('--visible')
-                restartingNode.classList.remove('--visible')
+                statePending.classList.remove('--visible')
 
                 if (statusReponse.result.status === 'poweredOn')
                     poweredOnNode.classList.add('--visible')
                 else if (statusReponse.result.status === 'poweredOff')
                     poweredOffNode.classList.add('--visible')
-                else if (statusReponse.result.status === 'restarting')
-                    restartingNode.classList.add('--visible')
+                else if (statusReponse.result.status === 'statePending')
+                    statePending.classList.add('--visible')
                 else 
                     unavailableNode.classList.add('--visible')
             }
         
         setInterval(async()=>{
-            await getDeviceStatus()
+            await getDeviceStatus(parentNode)
         }, 5000)
 
-        await getDeviceStatus()
+        await getDeviceStatus(parentNode)
     }
 
     // bind stop

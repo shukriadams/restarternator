@@ -33,9 +33,11 @@ let yaml = require('js-yaml'),
         poweredOn : false,          // calculated at runtime
 
         status:  {                  // last retrieved status of device, set by daemon
+            statePending: true,    // set this to true when a device is known to be stopping/starting, but its current status is unknown
+            pauseUpdates: false,    // set to true when device state cycling over time, and we want to hide cycling state from user
             failedAttempts : 0,     // nr of times contact has failed
             lastResponse: null,     // object last retrieved from device
-            lastResponseTime: null,  // time last object was successfully polled
+            lastResponseTime: null, // time last object was successfully polled
             poweredOn: false,
             reachable: false,
             descripion: ''          // short status description written by daemon
