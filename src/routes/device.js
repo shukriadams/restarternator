@@ -15,7 +15,11 @@ module.exports = express => {
                 })
             }
 
-            device = settings.devices.find(d => d.user === session.user && d.id === req.params.device)
+            let devicesArray = []
+            for (let p in settings.devices)
+                devicesArray.push(settings.devices[p])
+
+            let device = devicesArray.find(d => d.user === session.user && d.id === req.params.device)
             
             if (!device){
                 res.status(403)
@@ -27,13 +31,16 @@ module.exports = express => {
                 })
             }
 
-            let status = 'unavailable'
-                
+            let status = 'unavailable',
+                powerUse = 0
+            
             if (device.status.reachable){
                 if (device.status.showAsOn === true)
                     status = 'poweredOn'
                 else
                     status = 'poweredOff'
+
+                powerUse = device.status.powerUse
             }
 
             if (device.status.statePending)
@@ -42,7 +49,8 @@ module.exports = express => {
             res.json({
                 success: true,
                 result : {
-                    status 
+                    status,
+                    powerUse
                 },
                 message : `Device ${req.params.device} restarted`
             })
@@ -77,7 +85,11 @@ module.exports = express => {
                 })
             }
 
-            device = settings.devices.find(d => d.user === session.user && d.id === req.params.device)
+            let devicesArray = []
+            for (let p in settings.devices)
+                devicesArray.push(settings.devices[p])
+
+            device = devicesArray.find(d => d.user === session.user && d.id === req.params.device)
             if (!device){
                 res.status(403)
                 return res.json({
@@ -87,9 +99,18 @@ module.exports = express => {
                 })
             }
 
-            device.status.statePending = true
-            device.status.pauseUpdates = true
-            
+            if (device.lastCommand && timebelt.secondsDifference(new Date, device.lastCommand ) < settings.deviceCommandDebounce){
+                res.status(403)
+                return res.json({
+                    success: false,
+                    result: null,
+                    message: `Debounce limit hit.`
+                })
+            }
+
+            settings.devices[device.id].status.statePending = true
+            settings.devices[device.id].status.pauseUpdates = true
+            settings.devices[device.id].lastCommand = new Date()
 
             try {
                 // if device is already on, need to cycle
@@ -108,7 +129,7 @@ module.exports = express => {
                 })
 
             } finally {
-                device.status.pauseUpdates = false
+                settings.devices[device.id].status.pauseUpdates = false
             }
            
         } catch (ex){
@@ -132,6 +153,7 @@ module.exports = express => {
         try {
             const authHelper = require('./../lib/authHelper'),
                 deviceController = require('./../lib/shellys'),
+                timebelt = require('timebelt'),
                 settings = await (require('./../lib/settings')).get(),
                 session = await authHelper.getSession(req, res)
 
@@ -142,7 +164,13 @@ module.exports = express => {
                 })
             }
 
-            device = settings.devices.find(d => d.user === session.user && d.id === req.params.device)
+
+            let devicesArray = []
+            for (let p in settings.devices)
+                devicesArray.push(settings.devices[p])
+
+            device = devicesArray.find(d => d.user === session.user && d.id === req.params.device)
+
             if (!device){
                 res.status(403)
                 return res.json({
@@ -152,9 +180,21 @@ module.exports = express => {
                 })
             }
 
+            if (device.lastCommand && timebelt.secondsDifference(new Date, device.lastCommand ) < settings.deviceCommandDebounce){
+                res.status(403)
+                return res.json({
+                    success: false,
+                    result: null,
+                    message: `Debounce limit hit.`
+                })
+            }
+
+
             log.info(`Stopping device ${req.params.device}, bringing device down`)
 
-            device.status.statePending = true
+            settings.devices[device.id].status.statePending = true
+            settings.devices[device.id].lastCommand = new Date()
+
             const result = await deviceController.stop(device)
            
             res.json({
@@ -196,7 +236,12 @@ module.exports = express => {
                 })
             }
 
-            device = settings.devices.find(d => d.user === session.user && d.id === req.params.device)
+            let devicesArray = []
+            for (let p in settings.devices)
+                devicesArray.push(settings.devices[p])
+
+            device = devicesArray.find(d => d.user === session.user && d.id === req.params.device)
+
             if (!device){
                 res.status(403)
                 return res.json({
@@ -206,28 +251,40 @@ module.exports = express => {
                 })
             }
             
-            device.status.statePending = true
-            device.status.pauseUpdates = true
 
-            log.info(`Restarting for device ${req.params.device}, taking device down`)
-            const stopResult = await deviceController.stop(device)
-
-            await timebelt.pause(device.drainTime * 1000)
+            if (device.lastCommand && timebelt.secondsDifference(new Date, device.lastCommand ) < settings.deviceCommandDebounce){
+                res.status(403)
+                return res.json({
+                    success: false,
+                    result: null,
+                    message: `Debounce limit hit.`
+                })
+            }
 
             try {
-                log.info(`Restarting for device ${req.params.device}, bringing device up`)
-                const startResult = await deviceController.start(device)
-
-                res.json({
-                    success: true,
-                    result : startResult,
-                    message : `Device ${req.params.device} restarted`
-                })
+                settings.devices[device.id].status.statePending = true
+                settings.devices[device.id].status.pauseUpdates = true
+                settings.devices[device.id].lastCommand = new Date()
     
-            }finally{
-                device.status.pauseUpdates = false
+                log.info(`Restarting for device ${req.params.device}, taking device down`)
+                const stopResult = await deviceController.stop(device)
+    
+                await timebelt.pause(device.drainTime * 1000)
+                
+                let startResult = null
+
+                log.info(`Restarting for device ${req.params.device}, bringing device up`)
+                startResult = await deviceController.start(device)
+            } finally {
+                settings.devices[device.id].status.pauseUpdates = false
+                log.info(`Unpausing updates for device ${req.params.device}`)
             }
-           
+
+            res.json({
+                success: true,
+                result : startResult,
+                message : `Device ${req.params.device} restarted`
+            })           
         } catch (ex){
             log.error(ex)
             res.status(500)

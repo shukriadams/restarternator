@@ -10,15 +10,15 @@ let yaml = require('js-yaml'),
         ticketDir : './data/tickets',
         logsDir : './data/logs',
         daemonCron: '*/10 * * * * *', // 10 seconds
+        deviceCommandDebounce: 2, // seconds,
+
         ad : {
             url : null,
             base : null,
             forceDomain : null // if set will be appended to username egs, user@DOMAIN.COM, if not already set
         },
 
-        devices: [
-
-        ]
+        devices: {}
     },
     deviceTemplate = {
         id : null,                  // calculated at runtime, hash of name+user
@@ -30,7 +30,7 @@ let yaml = require('js-yaml'),
         showAsOnThreshold: 0,       // OPTIONAL. Device-specific power threshold, below which device will read as off
         enabled: true,              // OPTIONAL.
         available: false,           // calculated at runtime   
-
+        lastCommand : null,         // last time change command was sent. used for debounce
         status:  {                  // last retrieved status of device, set by daemon
             statePending: true,    // set this to true when a device is known to be stopping/starting, but its current status is unknown
             pauseUpdates: false,    // set to true when device state cycling over time, and we want to hide cycling state from user
@@ -39,6 +39,7 @@ let yaml = require('js-yaml'),
             lastResponseTime: null, // time last object was successfully polled
             initializing : true,
             poweredOn: false,
+            powerUse : 0,           
             reachable: false,
             showAsOn: false,
             descripion: ''          // short status description written by daemon
@@ -61,14 +62,16 @@ module.exports = {
 
             // apply default device values + structure to devices
             let errors = false
-            for (let i = 0; i < settings.devices.length ; i ++){
-                settings.devices[i] = Object.assign(JSON.parse(JSON.stringify(deviceTemplate)) , settings.devices[i])
+            for (let p in settings.devices){
+
+                settings.devices[p] = Object.assign(JSON.parse(JSON.stringify(deviceTemplate)) , settings.devices[p])
                 
                 // calculate id
-                settings.devices[i].id = crypto.createHash('md5').update(`${settings.devices[i].name}_${settings.devices[i].user}`).digest('hex')
+                // settings.devices[p].id = crypto.createHash('md5').update(`${settings.devices[p].name}_${settings.devices[p].user}`).digest('hex')
+                settings.devices[p].id = p
 
                 // verify settings
-                const device = settings.devices[i]
+                const device = settings.devices[p]
                 if (!device.name){
                     console.error(`Device ${JSON.stringify(device)} has no name`)
                     errors = true

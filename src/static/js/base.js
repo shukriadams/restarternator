@@ -61,8 +61,10 @@
                     poweredOffNode = parentNode.querySelector('.device-poweredOffContent'),
                     unavailableNode = parentNode.querySelector('.device-unavailableContent'),
                     gettingStatus = parentNode.querySelector('.device-gettingStatus'),
-                    statePending = parentNode.querySelector('.device-gettingStatus')
+                    statePending = parentNode.querySelector('.device-gettingStatus'),
+                    powerUse = parentNode.querySelector('[data-powerUse]')
     
+
                 const response = await fetch(`/device/status/${encodeURIComponent(deviceid)}`),
                     statusReponse = await response.json()
         
@@ -72,6 +74,8 @@
                 poweredOffNode.classList.remove('--visible')
                 unavailableNode.classList.remove('--visible')
                 statePending.classList.remove('--visible')
+
+                powerUse.innerHTML = `${statusReponse.result.powerUse}` 
 
                 if (statusReponse.result.status === 'poweredOn')
                     poweredOnNode.classList.add('--visible')

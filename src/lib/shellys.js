@@ -16,6 +16,7 @@ module.exports = {
                     success: true,
                     raw : json,
                     poweredOn : json.output === true,
+                    powerUse: `${json.apower}W`,
                     showAsOn : json.apower > device.showAsOnThreshold
                 }
             }

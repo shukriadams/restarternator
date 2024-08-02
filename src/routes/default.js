@@ -11,7 +11,11 @@ module.exports = express => {
             if (!session)
                 return res.redirect('/login') 
 
-            let devices = settings.devices.filter(d => d.user === session.user)
+            let devicesArray = []
+            for (let p in settings.devices)
+                devicesArray.push(settings.devices[p])
+
+            let devices = devicesArray.filter(d => d.user === session.user)
 
             res.end(view({
                 devices

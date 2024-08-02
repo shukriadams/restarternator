@@ -2,6 +2,10 @@ body {
     padding-top: 64px;
 }
 
+.device{
+    padding-bottom: 16px;
+}
+
 .device-poweredOnContent {
     display: none;
 }

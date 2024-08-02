@@ -27,13 +27,18 @@ module.exports = {
             this.busy = true
             let calls = 0
 
-            for (let deviceConfig of settings.devices){
-
+            for (let p in settings.devices){
+                let deviceConfig = settings.devices[p]
+                
                 if (!deviceConfig.enabled)
                     continue
                 
                 if (deviceConfig.status.pauseUpdates)
-                    continue
+                    if (device.lastCommand && timebelt.secondsDifference(new Date, device.lastCommand) > device.drainTime * 1000) {
+                        deviceConfig.status.pauseUpdates = false
+                    } else {
+                        continue
+                    }
 
                 (async (deviceConfig)=>{
                     try {
@@ -54,15 +59,15 @@ module.exports = {
                             deviceConfig.status.lastResponse = result.raw
                             deviceConfig.status.poweredOn = result.poweredOn === true
                             deviceConfig.status.showAsOn = result.showAsOn === true
+                            deviceConfig.status.powerUse = result.powerUse
                         } else {
                             deviceConfig.status.failedAttempts ++
                             deviceConfig.status.reachable = false
                             deviceConfig.status.description = 'Device currently not reachable'
                         }
                         
-                        if (!firstRead && previousReachable != deviceConfig.status.reachable){
+                        if (!firstRead && previousReachable != deviceConfig.status.reachable)
                             log.info(`Device ${deviceConfig.name} reachability changed, reading is ${JSON.stringify(result)} `)
-                        }
 
 
                     } catch(ex) {        

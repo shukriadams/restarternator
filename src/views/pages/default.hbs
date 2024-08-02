@@ -3,7 +3,7 @@
 
         {{#if devices.length}}
             {{#each devices}}
-                <div data-pollid="{{id}}">
+                <div class="device" data-pollid="{{id}}">
                     <div>
                         {{name}}
                     </div>
@@ -15,9 +15,10 @@
                         <button class="button --warning" data-raction="restart" data-deviceid="{{id}}">
                             Reboot
                         </button>
-                        <div data-ractionFeedback>
-
-                        </div>
+                    </div>
+                    
+                    <div data-powerUse>
+                        
                     </div>
 
                     <div class="device-poweredOffContent {{#eq status "poweredoff"}}--visible{{/eq}}" >
@@ -40,7 +41,6 @@
             No devices found
         {{/if}}
 
-        <button class="button --warning logout">Logout</button>
     {{/content}}
 
 {{/extend}}
