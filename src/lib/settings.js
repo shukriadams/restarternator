@@ -9,7 +9,7 @@ let yaml = require('js-yaml'),
         logLevel: 'info',
         ticketDir : './data/tickets',
         logsDir : './data/logs',
-        daemonCron: '*/10 * * * * *', // 10 seconds
+        daemonCron: '*/3 * * * * *', // 3 seconds
         deviceCommandDebounce: 2, // seconds,
 
         ad : {
@@ -27,7 +27,7 @@ let yaml = require('js-yaml'),
         address: null,              // REQUIRED. IP:PORT of device
         type: 'shellys',            // allowed values : shellys
         drainTime: 20,              // OPTIONAL. Dealy, in seconds, between device stop and start
-        showAsOnThreshold: 0,       // OPTIONAL. Device-specific power threshold, below which device will read as off
+        showAsOnThreshold: 10,       // OPTIONAL. Device-specific power threshold, below which device will read as off
         enabled: true,              // OPTIONAL.
         available: false,           // calculated at runtime   
         lastCommand : null,         // last time change command was sent. used for debounce

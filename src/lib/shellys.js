@@ -12,12 +12,24 @@ module.exports = {
             {
                 rawJson = t.body
                 const json = JSON.parse(t.body)
+                let description = ''
+
+                if (json.output === false){
+                    description = 'Plug off'
+                } else {
+                    if (json.apower < device.showAsOnThreshold)
+                        description = 'Plug on, device off'
+                    else
+                    description = 'Device on'
+                }
+
                 return {
                     success: true,
                     raw : json,
                     poweredOn : json.output === true,
                     powerUse: `${json.apower}W`,
-                    showAsOn : json.apower > device.showAsOnThreshold
+                    description,
+                    showAsOn : json.output === true && json.apower > device.showAsOnThreshold
                 }
             }
 

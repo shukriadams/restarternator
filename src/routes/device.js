@@ -50,6 +50,7 @@ module.exports = express => {
                 success: true,
                 result : {
                     status,
+                    description : device.status.description,
                     powerUse
                 },
                 message : `Device ${req.params.device} restarted`
@@ -113,14 +114,16 @@ module.exports = express => {
             settings.devices[device.id].lastCommand = new Date()
 
             try {
-                // if device is already on, need to cycle
+                // if device is already on, need to cycle first
                 if (device.status.poweredOn){
                     log.info(`Starting device ${req.params.device}, device is already marked as up, forcing down first`)
 
+                    device.status.descripion = 'Cycling powerstate to start'
                     const stopResult = await deviceController.stop(device)
                     await timebelt.pause(device.drainTime * 1000)
                 }
                 log.info(`Starting device ${req.params.device}, bringing up now`)
+                device.status.descripion = 'Powering on...'
                 const startResult = await deviceController.start(device)
                 res.json({
                     success: true,

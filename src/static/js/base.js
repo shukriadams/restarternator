@@ -75,7 +75,7 @@
                 unavailableNode.classList.remove('--visible')
                 statePending.classList.remove('--visible')
 
-                powerUse.innerHTML = `${statusReponse.result.powerUse}` 
+                powerUse.innerHTML = `${statusReponse.result.powerUse} ${statusReponse.result.description}`
 
                 if (statusReponse.result.status === 'poweredOn')
                     poweredOnNode.classList.add('--visible')
@@ -89,7 +89,7 @@
         
         setInterval(async()=>{
             await getDeviceStatus(parentNode)
-        }, 5000)
+        }, 1000)
 
         await getDeviceStatus(parentNode)
     }

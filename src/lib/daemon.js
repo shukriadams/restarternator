@@ -54,7 +54,7 @@ module.exports = {
                         if (result.success){
                             deviceConfig.status.failedAttempts = 0
                             deviceConfig.status.reachable = true
-                            deviceConfig.status.description = 'Device reachable'
+                            deviceConfig.status.description = result.description
                             deviceConfig.status.lastResponseTime = new Date()
                             deviceConfig.status.lastResponse = result.raw
                             deviceConfig.status.poweredOn = result.poweredOn === true
