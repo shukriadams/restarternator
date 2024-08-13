@@ -20,14 +20,15 @@ module.exports = {
         return sessionId
     },
 
-    async deleteSession(session, req){
+    async deleteSession(session, res){
         const settings = await (require('./settings')).get(),
             sessionPath = path.join(settings.ticketDir, `${session.sessionId}.json`)
 
         if (await fs.exists(sessionPath))
             await fs.remove(sessionPath)
 
-        res.cookie('restarternator-auth', sessionId, { maxAge: 9999999999999, httpOnly: true })
+        // overwrite cookie with empty string
+        res.clearCookie('restarternator-auth')
     },
 
     // gets full session data from disk, or null

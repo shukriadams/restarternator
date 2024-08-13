@@ -3,9 +3,10 @@
 module.exports = express => {
 
     express.delete('/session', async (req, res)=>{
+        const log = await (require('./../lib/log')).get()
+
         try {
             const authHelper = require('./../lib/authHelper'),
-                log = await (require('./../lib/log')).get(),
                 session = await authHelper.getSession(req)
 
             if (session)
