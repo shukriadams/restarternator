@@ -42,6 +42,11 @@ module.exports = express => {
             if (!user.includes('@') && settings.ad.forceDomain)
                 user = `${user}@${settings.ad.forceDomain}`
 
+            /* 
+                force lower to standardize text storage, also makes assumption AD is case insensitive
+            */
+            user = user.toLowerCase()
+
             ad.authenticate(user, password, async(err, auth) => {
                 if (err) {
                     log.error('ERROR: '+JSON.stringify(err));
