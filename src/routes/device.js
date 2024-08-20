@@ -2,8 +2,7 @@ module.exports = express => {
 
     express.get('/device/status/:device', async (req, res)=>{
         try {
-            const path = require('path'),
-                authHelper = require('./../lib/authHelper'),
+            const authHelper = require('./../lib/authHelper'),
                 settings = await (require('./../lib/settings')).get(),
                 session = await authHelper.getSession(req, res)
 
@@ -52,8 +51,7 @@ module.exports = express => {
                     status,
                     description : device.status.description,
                     powerUse
-                },
-                message : `Device ${req.params.device} restarted`
+                }
             })
            
         } catch (ex){
@@ -116,19 +114,23 @@ module.exports = express => {
             try {
                 // if device is already on, need to cycle first
                 if (device.status.poweredOn){
-                    log.info(`Starting device ${req.params.device}, device is already marked as up, forcing down first`)
+                    log.info(`Starting device ${device.name}, device is already marked as up, forcing down first`)
 
                     device.status.descripion = 'Cycling powerstate to start'
                     const stopResult = await deviceController.stop(device)
                     await timebelt.pause(device.drainTime * 1000)
                 }
-                log.info(`Starting device ${req.params.device}, bringing up now`)
+
+                log.info(`Starting device ${device.name}, bringing up now`)
+                
                 device.status.descripion = 'Powering on...'
+                
                 const startResult = await deviceController.start(device)
+                
                 res.json({
                     success: true,
                     result : startResult,
-                    message : `Device ${req.params.device} restarted`
+                    message : `Device ${device.name} restarted`
                 })
 
             } finally {
@@ -193,7 +195,7 @@ module.exports = express => {
             }
 
 
-            log.info(`Stopping device ${req.params.device}, bringing device down`)
+            log.info(`Stopping device ${device.name}, bringing device down`)
 
             settings.devices[device.id].status.statePending = true
             settings.devices[device.id].lastCommand = new Date()
@@ -203,7 +205,7 @@ module.exports = express => {
             res.json({
                 success: true,
                 result,
-                message : `Device ${req.params.device} restarted`
+                message : `Device ${device.name} restarted`
             })
            
         } catch (ex){
@@ -223,6 +225,7 @@ module.exports = express => {
      */
     express.post('/device/restart/:device', async (req, res)=>{
         const log = await (require('./../lib/log')).get()
+        let startResult = null
 
         try {
             log.info(`Received restart order for device ${req.params.device}`)
@@ -269,24 +272,23 @@ module.exports = express => {
                 settings.devices[device.id].status.pauseUpdates = true
                 settings.devices[device.id].lastCommand = new Date()
     
-                log.info(`Restarting for device ${req.params.device}, taking device down`)
+                log.info(`Restarting for device ${device.name}, taking device down`)
                 const stopResult = await deviceController.stop(device)
     
                 await timebelt.pause(device.drainTime * 1000)
                 
-                let startResult = null
 
-                log.info(`Restarting for device ${req.params.device}, bringing device up`)
+                log.info(`Restarting for device ${device.name}, bringing device up`)
                 startResult = await deviceController.start(device)
             } finally {
                 settings.devices[device.id].status.pauseUpdates = false
-                log.info(`Unpausing updates for device ${req.params.device}`)
+                log.info(`Unpausing updates for device ${device.name}`)
             }
 
             res.json({
                 success: true,
                 result : startResult,
-                message : `Device ${req.params.device} restarted`
+                message : `Device ${device.name} restarted`
             })           
         } catch (ex){
             log.error(ex)
